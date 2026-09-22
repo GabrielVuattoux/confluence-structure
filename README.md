@@ -9,8 +9,8 @@ have generated. Extract the text and all of it is gone, silently.
 
 This library reads the attributes instead.
 
-> Early work in progress. The icon layer is in place; table geometry, the parser and the
-> measured comparison against text-only extraction are coming.
+> Early work in progress. Icons and table geometry are in place; the parser, a demo corpus
+> and a measured comparison against text-only extraction are coming.
 
 ## Install
 
