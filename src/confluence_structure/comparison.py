@@ -16,8 +16,11 @@ Three baselines stand for what someone would reach for, in ascending order of ca
     The same, but expanding ``colspan`` and ``rowspan`` so values keep their column. What
     ``pandas.read_html`` does, and the best of the ordinary tools.
 
-They are reimplemented here so the measurement needs no extra dependency at runtime; a test
-runs the real tools, where installed, to confirm the reimplementations behave the same way.
+They are reimplemented here so the measurement needs no extra dependency at runtime. Tests
+run the real tools where installed and check both halves of that substitution: that each
+tool loses what the baseline says it loses, and that the span-expanding baseline puts a
+value in the same column pandas does. A baseline that landed somewhere else would be
+measuring the wrong thing.
 
 Two costs, and they fail differently:
 
@@ -234,3 +237,13 @@ def compare(pages: list[Path]) -> Comparison:
         for approach in APPROACH_LABELS
     ]
     return report
+
+
+def main() -> None:
+    """Measure the demo corpus and print the comparison."""
+    corpus = Path(__file__).resolve().parents[2] / "corpus" / "pages"
+    print(compare(sorted(corpus.glob("*.html"))).render())
+
+
+if __name__ == "__main__":
+    main()

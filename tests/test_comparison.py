@@ -108,3 +108,25 @@ def test_pandas_gets_the_grid_right_and_still_reads_no_icon():
     values = [str(v) for v in frame.iloc[0].tolist()]
     assert values[0] == "Standard"
     assert all(v == "nan" for v in values[1:]), "and every icon is missing"
+
+
+def test_the_span_baseline_assigns_the_same_columns_as_pandas():
+    """The reimplementation is only fair if it lands where the real tool lands.
+
+    pandas expands merged cells, so its column for every cell must match the one this
+    baseline computes. If they ever diverge, the comparison is measuring the wrong thing.
+    """
+    pd = pytest.importorskip("pandas")
+    frame = pd.read_html(io.StringIO(MATRIX))[0]
+
+    rows = source_rows(lxml.html.fromstring(MATRIX))
+    ours = columns_expanding_spans(rows)
+
+    body = rows[2]
+    body_columns = ours[2]
+    values = [str(v) for v in frame.iloc[0].tolist()]
+    assert len(values) == frame.shape[1]
+    # "Standard" is the only text value in the body row; pandas must place it where we do.
+    placed = zip(body, body_columns, strict=True)
+    standard_column = next(column for (text, _i, _cs, _rs), column in placed if text)
+    assert values[standard_column] == "Standard"

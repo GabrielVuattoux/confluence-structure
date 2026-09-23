@@ -92,6 +92,23 @@ def test_attachments_are_collected_with_how_they_were_referenced():
     assert {(a.filename, a.via) for a in page.attachments} == {("rates.xlsx", "view-file")}
 
 
+def test_how_a_file_is_referenced_is_recorded():
+    """An image the page displays and a file someone linked to cost different things when
+    they are missing, so they are told apart rather than lumped together."""
+    markup = (
+        '<ac:image><ri:attachment ri:filename="plan.png" /></ac:image>'
+        '<ac:link><ri:attachment ri:filename="rates.pdf" /></ac:link>'
+        '<ac:structured-macro ac:name="view-file"><ac:parameter ac:name="name">'
+        '<ri:attachment ri:filename="sheet.xlsx" /></ac:parameter></ac:structured-macro>'
+    )
+    page = parse_html(markup)
+    assert {(a.filename, a.via) for a in page.attachments} == {
+        ("plan.png", "image"),
+        ("rates.pdf", "link"),
+        ("sheet.xlsx", "view-file"),
+    }
+
+
 def test_a_macro_that_builds_its_body_at_render_time_is_marked():
     """A page made of these looks nearly empty in the export; reading it as empty is wrong."""
     page = parse_html(PAGE)

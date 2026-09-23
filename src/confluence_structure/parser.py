@@ -114,14 +114,23 @@ def _references(root: HtmlElement) -> list[Reference]:
 
 
 def _attachments(root: HtmlElement) -> list[Attachment]:
-    """Collect the files the page depends on."""
+    """Collect the files the page depends on.
+
+    How a file is referenced changes what its absence costs. An image the page displays
+    leaves a hole where content was; a file someone linked to is a detour the reader can
+    still decline. Both are recorded, and told apart.
+    """
     found: list[Attachment] = []
     for node in root.iter("ri:attachment"):
         filename = node.get("ri:filename")
         if not filename:
             continue
         ancestors = {a.tag for a in node.iterancestors() if isinstance(a.tag, str)}
-        via: AttachmentVia = "image" if "ac:image" in ancestors else "view-file"
+        via: AttachmentVia = "view-file"
+        if "ac:image" in ancestors:
+            via = "image"
+        elif "ac:link" in ancestors:
+            via = "link"
         found.append(Attachment(filename=filename, via=via))
     return found
 
