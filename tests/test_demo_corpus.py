@@ -35,7 +35,7 @@ def index():
 
 
 def test_every_page_parses(pages):
-    assert len(pages) == 24
+    assert len(pages) == 27
     assert all(page.sections for page in pages)
 
 

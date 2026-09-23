@@ -9,8 +9,32 @@ have generated. Extract the text and all of it is gone, silently.
 
 This library reads the attributes instead.
 
-> Early work in progress. Reading a page works end to end and there is a demo corpus to
-> read; the measured comparison against text-only extraction is coming.
+## What it costs to read a page as text
+
+Measured on the demo corpus in this repository, so the figures can be checked rather than
+believed:
+
+| approach | values read | icon states | misplaced | usable |
+|---|---|---|---|---|
+| text only — `html2text`, `get_text()` | 380 | 0 | 380 | **0.0%** |
+| tables, text cells, spans ignored | 380 | 0 | 32 | 57.3% |
+| tables, text cells, spans expanded — `pandas.read_html` | 380 | 0 | 0 | 62.6% |
+| **attribute-aware — this library** | **607** | **227** | 0 | **100%** |
+
+```bash
+.venv/bin/python -c "from pathlib import Path; from confluence_structure.comparison import compare; print(compare(sorted(Path('corpus/pages').glob('*.html'))).render())"
+```
+
+A value counts as usable only if it was read **and** landed under the column it belongs to.
+Both halves are required: a value read correctly and filed under the wrong heading is not a
+partial success — it is an answer that looks complete and describes the wrong thing.
+
+Two costs, and they fail differently. A cell whose only content is an icon comes back empty
+from every text-based reader, which at least looks wrong. A cell shifted by a merged cell
+looks right and is not.
+
+The figures depend on how icon-heavy a corpus is; 37% of the values in this one are icons,
+and the measurement covers table content only. Reading prose as text loses nothing.
 
 ## Reading a page
 
@@ -20,6 +44,7 @@ from confluence_structure.parser import parse_file
 
 page = parse_file(Path("export/123456.html"))
 
+page.legend          # what the page says its own icons mean, if it says
 page.sections        # prose, split at its headings
 page.tables          # expanded grids, merged cells resolved
 page.figures         # diagrams, with whatever text could be read out of them

@@ -21,6 +21,7 @@ from lxml.html import HtmlElement
 
 from confluence_structure.figures import figure_of, figures_in
 from confluence_structure.grid import build_table
+from confluence_structure.legend import extract_legend
 from confluence_structure.page import (
     GENERATED_MACROS,
     Attachment,
@@ -154,6 +155,7 @@ def parse_html(source: str, page_id: str = "", origin: str = "") -> Page:
         page_id=page_id,
         source=origin,
         text=_page_text(root),
+        legend=extract_legend(root),
         sections=_sections(root),
         tables=[build_table(element, index) for index, element in enumerate(top_level)],
         figures=figures_in(root),

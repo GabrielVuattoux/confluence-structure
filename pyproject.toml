@@ -17,6 +17,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
+    # Used only to confirm the reimplemented baselines in `comparison` behave the way the
+    # real tools do. Not needed to use the library.
+    "beautifulsoup4>=4.12",
+    "html2text>=2024.2",
+    "pandas>=2.2",
     "ruff>=0.6",
     "mypy>=1.11",
     "lxml-stubs>=0.5",

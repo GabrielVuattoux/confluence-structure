@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from confluence_structure.figures import Figure
 from confluence_structure.grid import Table
+from confluence_structure.legend import Legend
 
 ReferenceKind = Literal["page", "external"]
 AttachmentVia = Literal["image", "view-file", "link"]
@@ -76,6 +77,7 @@ class Page(BaseModel):
     page_id: str = ""
     source: str = ""
     text: str = ""
+    legend: Legend | None = None
     sections: list[Section] = Field(default_factory=list)
     tables: list[Table] = Field(default_factory=list)
     figures: list[Figure] = Field(default_factory=list)

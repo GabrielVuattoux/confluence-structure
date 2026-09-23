@@ -293,17 +293,27 @@ def build_pages() -> list[Page]:
         ("Photo Evidence Capture", "photo", "Photograph all four faces before unwrapping."),
         ("Recipient Signature Capture", "signature", "Capture the signature on the handheld."),
     ]
+    steps = [
+        "Confirm the shipment reference against the manifest.",
+        "Perform the check and note the reading.",
+        "Record the outcome against the shipment.",
+        "Photograph anything outside tolerance.",
+        "Escalate any deviation to the duty supervisor.",
+        "Close the task on the handheld before leaving the bay.",
+    ]
     for title, slug, opening in runbooks:
+        rows = "".join(
+            f"<tr><td>{n}</td><td>{step}</td><td>Receiving desk</td>"
+            f"<td>{emoticon('tick' if n < 5 else 'warning')}</td></tr>"
+            for n, step in enumerate(steps, start=1)
+        )
         add(
             title,
             f"<h2>Purpose</h2><p>{opening}</p>"
             "<h2>Steps</h2>"
-            "<table><tbody><tr><th>Step</th><th>Action</th><th>Recorded</th></tr>"
-            f"<tr><td>1</td><td>{opening}</td><td>{emoticon('tick')}</td></tr>"
-            "<tr><td>2</td><td>Record the outcome against the shipment.</td>"
-            f"<td>{emoticon('tick')}</td></tr>"
-            "<tr><td>3</td><td>Escalate any deviation to the duty supervisor.</td>"
-            f"<td>{emoticon('warning')}</td></tr></tbody></table>"
+            "<table><tbody>"
+            "<tr><th>Step</th><th>Action</th><th>Owner</th><th>Recorded</th></tr>"
+            f"{rows}</tbody></table>"
             f"<p>See also {link_to('Glossary')} and the {slug} entry in the archive.</p>",
         )
 
@@ -378,6 +388,60 @@ def build_pages() -> list[Page]:
         f"<p>Labelling rules are described in {link_to('Hazard Labelling Check')}. "
         f"Storage segregation is covered in {link_to('Segregation Matrix')}.</p>",
     )
+    rate_rows = "".join(
+        f"<tr><td>{lane}</td><td>{days} days</td><td>{price}</td><td>{surcharge}</td></tr>"
+        for lane, days, price, surcharge in [
+            ("Harbour East to Inland Depot", 1, "42.00", "none"),
+            ("Harbour West to Inland Depot", 1, "44.50", "none"),
+            ("Harbour East to Cold Store", 2, "61.00", "temperature"),
+            ("Inland Depot to Cold Store", 2, "58.00", "temperature"),
+            ("Harbour West to Harbour East", 1, "27.50", "none"),
+            ("Cold Store to Harbour East", 2, "63.00", "temperature"),
+        ]
+    )
+    add(
+        "Carrier Rate Card",
+        "<h2>Indicative lane rates</h2>"
+        "<p>Rates are indicative and reviewed each quarter.</p>"
+        "<table><tbody><tr><th>Lane</th><th>Transit</th><th>Rate per pallet</th>"
+        f"<th>Surcharge</th></tr>{rate_rows}</tbody></table>",
+    )
+
+    shift_rows = "".join(
+        f"<tr><td>{site}</td><td>{early}</td><td>{late}</td><td>{night}</td></tr>"
+        for site, early, late, night in [
+            ("Harbour East", "06:00-14:00", "14:00-22:00", "22:00-06:00"),
+            ("Harbour West", "06:00-14:00", "14:00-22:00", "closed"),
+            ("Inland Depot", "07:00-15:00", "15:00-23:00", "closed"),
+            ("Cold Store", "06:00-14:00", "14:00-22:00", "22:00-06:00"),
+        ]
+    )
+    add(
+        "Shift Schedule",
+        "<h2>Standard shift pattern</h2>"
+        "<p>Bank holidays follow the weekend pattern.</p>"
+        "<table><tbody><tr><th>Site</th><th>Early</th><th>Late</th>"
+        f"<th>Night</th></tr>{shift_rows}</tbody></table>",
+    )
+
+    contact_rows = "".join(
+        f"<tr><td>{role}</td><td>{site}</td><td>{hours}</td><td>{route}</td></tr>"
+        for role, site, hours, route in [
+            ("Duty supervisor", "Harbour East", "24 hours", "Radio channel 2"),
+            ("Duty supervisor", "Harbour West", "06:00-22:00", "Radio channel 3"),
+            ("Customs liaison", "All sites", "08:00-18:00", "Customs desk"),
+            ("Cold chain officer", "Cold Store", "24 hours", "Radio channel 5"),
+            ("Site manager", "Inland Depot", "07:00-19:00", "Reception"),
+        ]
+    )
+    add(
+        "Site Contacts",
+        "<h2>Who covers what</h2>"
+        "<table><tbody><tr><th>Role</th><th>Site</th><th>Cover</th>"
+        f"<th>Reach by</th></tr>{contact_rows}</tbody></table>"
+        f"<p>Escalation beyond the duty supervisor follows {link_to('Escalation Routes')}.</p>",
+    )
+
     add(
         "Handbook Home",
         "<h2>Warehouse operations handbook</h2>"
